@@ -28,15 +28,14 @@ export default async (req, res) => {
       const overpaidLNFeeUSD = BTC2USD(overpaidLNFeeBTC, USDPrice)
       const overpayRatio = calcOverpayRatio(overpaid_chain_fee, overpaid_ln_fee);
 
-      const status = `Yesterday, Bitcoin users paid ${overpaidChainFeeBTC} BTC ($${overpaidChainFeeUSD} USD) in transaction fees which could have been transferred over the Lightning Network for ${overpaidLNFeeBTC} BTC ($ ${overpaidLNFeeUSD} USD). You overpaid by ${overpayRatio}%`;
+      const status = `Yesterday, Bitcoin users paid ${overpaidChainFeeBTC} BTC in transaction fees ($${overpaidChainFeeUSD} USD) which could have been transferred over the Lightning Network for ${overpaidLNFeeBTC} BTC ($ ${overpaidLNFeeUSD} USD). They overpaid by ${overpayRatio}%`;
 
-      const tweet = await twitterAPI.post("statuses/update", { status });
-      const { id, text, created_at } = tweet.tweet;
+      const { id, text, created_at } = await twitterAPI.post("statuses/update", { status });
 
       res.status(200).json({
         id,
-        created_at,
-        text
+        text,
+        created_at
       });
     } catch (err) {
       res.status(500).json({
