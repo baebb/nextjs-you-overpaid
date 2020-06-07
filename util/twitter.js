@@ -1,10 +1,9 @@
-import Twit from 'twit';
+// NPM Dependendcies
+import Twitter from 'twitter-lite';
 
-var twitterAPI = new Twit({
+export const twitterAPI = new Twitter({
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
   consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
   access_token: process.env.TWITTER_ACCESS_TOKEN,
-  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-  timeout_ms: 60*1000,
-  strictSSL: true
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
 })
