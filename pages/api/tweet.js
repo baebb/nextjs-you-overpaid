@@ -30,12 +30,13 @@ export default async (req, res) => {
 
       const status = `Yesterday, Bitcoin users paid ${overpaidChainFeeBTC} BTC ($${overpaidChainFeeUSD} USD) in transaction fees which could have been transferred over the Lightning Network for ${overpaidLNFeeBTC} BTC ($ ${overpaidLNFeeUSD} USD). You overpaid by ${overpayRatio}%`;
 
-      const tweet = await twitterAPI.post("statuses/update", {
-        status
-      });
+      const tweet = await twitterAPI.post("statuses/update", { status });
+      const { id, text, created_at } = tweet.tweet;
 
       res.status(200).json({
-        tweet
+        id,
+        created_at,
+        text
       });
     } catch (err) {
       res.status(500).json({
