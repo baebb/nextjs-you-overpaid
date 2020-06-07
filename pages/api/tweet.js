@@ -4,14 +4,13 @@
 // Util Dependencies
 import { twitterAPI } from '../../util/twitter';
 import { bigsunAPI, blockchainComAPI } from '../../util/api';
-import { sats2BTC } from '../../util/helpers';
+import { sats2BTC, BTC2USD, calcOverpayRatio } from '../../util/helpers';
 
 export default async (req, res) => {
   const auth = req.headers.authorization;
   if (auth === process.env.AUTH_KEY) {
     try {
-      const feeData = await bigsunAPI.get("/days?order=day.desc");
-      // const priceData = await blockchainComAPI.get("/ticker");
+      const { data: feeData } = await bigsunAPI.get("/days?order=day.desc");
       const {
         total_n,
         total_amount,
@@ -22,20 +21,21 @@ export default async (req, res) => {
       } = feeData[0];
       const overpaidChainFeeBTC = sats2BTC(overpaid_chain_fee);
       const overpaidLNFeeBTC = sats2BTC(overpaid_ln_fee);
-      // const usdPrice = priceData.USD.last;
-      // const overpaid_ln_fee_usd =
-      // console.log('overpaidChainFeeBTC', overpaidChainFeeBTC);
 
+      const { data: priceData } = await blockchainComAPI.get("/ticker");
+      const USDPrice = priceData.USD.last;
+      const overpaidChainFeeUSD = BTC2USD(overpaidChainFeeBTC, USDPrice);
+      const overpaidLNFeeUSD = BTC2USD(overpaidLNFeeBTC, USDPrice)
+      const overpayRatio = calcOverpayRatio(overpaid_chain_fee, overpaid_ln_fee);
 
-      // const status = `Yesterday Bitcoin users paid ${overpaid_chain_fee} sats (${overpaid_chain_fee_usd}) in transaction fees, which could have been transferred over the Lightning Network for ${overpaid_ln_fee} sats (${overpaid_ln_fee_usd}). They overpaid by ${((overpaid_chain_fee/overpaid_ln_fee) * 100)}`;
+      const status = `Yesterday, Bitcoin users paid ${overpaidChainFeeBTC} BTC ($${overpaidChainFeeUSD} USD) in transaction fees which could have been transferred over the Lightning Network for ${overpaidLNFeeBTC} BTC ($ ${overpaidLNFeeUSD} USD). You overpaid by ${overpayRatio}%`;
 
-      // const tweet = await twitterAPI.post("statuses/update", {
-      //   status
-      // });
+      const tweet = await twitterAPI.post("statuses/update", {
+        status
+      });
 
       res.status(200).json({
-        overpaidLNFeeBTC,
-        overpaidChainFeeBTC
+        tweet
       });
     } catch (err) {
       res.status(500).json({
