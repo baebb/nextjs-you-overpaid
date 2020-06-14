@@ -16,7 +16,7 @@ export const BTC2USD  = (amount, BTCPrice) => {
 };
 
 export const calcOverpayRatio = (onChainFees, LNFees) => {
-  const ratio = (onChainFees/LNFees) * 100;
+  const ratio = ((onChainFees-LNFees)/LNFees) * 100;
 
-  return numeral(ratio).format('0,0%');
+  return `${numeral(ratio).format('0,0')}%`;
 };
