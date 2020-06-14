@@ -19,7 +19,7 @@ export default async (req, res) => {
         overpaid_chain_fee,
         overpaid_ln_fee
       } = feeData[0];
-      const overpaidChainFeeBTC = sats2BTC(overpaid_chain_fee);
+      const overpaidChainFeeBTC = sats2BTC(overpaid_chain_fee, 2);
       const overpaidLNFeeBTC = sats2BTC(overpaid_ln_fee);
 
       const { data: priceData } = await blockchainComAPI.get("/ticker");
@@ -28,7 +28,7 @@ export default async (req, res) => {
       const overpaidLNFeeUSD = BTC2USD(overpaidLNFeeBTC, USDPrice)
       const overpayRatio = calcOverpayRatio(overpaid_chain_fee, overpaid_ln_fee);
 
-      const status = `Yesterday, Bitcoin users paid ${overpaidChainFeeBTC} BTC in transaction fees ($${overpaidChainFeeUSD} USD) which could have been transferred over the Lightning Network for ${overpaidLNFeeBTC} BTC ($ ${overpaidLNFeeUSD} USD). They overpaid by ${overpayRatio}%`;
+      const status = `Yesterday, Bitcoin users paid ${overpaidChainFeeBTC} BTC in fees ($${overpaidChainFeeUSD} USD) for transactions which could have been transferred over the Lightning Network for ${overpaidLNFeeBTC} BTC ($${overpaidLNFeeUSD} USD). You overpaid by ${overpayRatio}`;
 
       const { id, text, created_at } = await twitterAPI.post("statuses/update", { status });
 
