@@ -8,6 +8,8 @@ import { sats2BTC, BTC2USD, calcOverpayRatio } from '../../util/helpers';
 
 export default async (req, res) => {
   const auth = req.headers.authorization;
+  const isTest = req.query.test
+
   if (auth === process.env.AUTH_KEY) {
     try {
       const { data: feeData } = await bigsunAPI.get("/days?order=day.desc");
@@ -30,13 +32,19 @@ export default async (req, res) => {
 
       const status = `Yesterday, Bitcoin users paid ${overpaidChainFeeBTC} BTC in fees ($${overpaidChainFeeUSD} USD) for transactions which could have been transferred over Lightning Network for ${overpaidLNFeeBTC} BTC ($${overpaidLNFeeUSD} USD), overpaying by ${overpayRatio}`;
 
-      const { id, text, created_at } = await twitterAPI.post("statuses/update", { status });
+      if (isTest === 'true') {
+        res.status(200).json({
+          status
+        })
+      } else {
+        const { id, text, created_at } = await twitterAPI.post("statuses/update", { status });
 
-      res.status(200).json({
-        id,
-        text,
-        created_at
-      });
+        res.status(200).json({
+          id,
+          text,
+          created_at
+        });
+      }
     } catch (err) {
       res.status(500).json({
         err
