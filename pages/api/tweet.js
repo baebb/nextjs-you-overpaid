@@ -34,7 +34,7 @@ export default async (req, res) => {
 
       if (isTest === 'true') {
         res.status(200).json({
-          status
+          text: status
         })
       } else {
         const { id, text, created_at } = await twitterAPI.post("statuses/update", { status });
